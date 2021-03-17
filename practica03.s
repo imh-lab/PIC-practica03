@@ -34,7 +34,7 @@
 titulo:         .asciiz "Práctica 3. PRINCIPIO DE COMPUTADORES\n"
 mensaje1:       .asciiz "Introduzca el error máximo permitido: "
 resultado:      .asciiz "El número e = "
-msjterminos:    .asciiz "Número de términos calculados: "
+msjterminos:    .asciiz "\nNúmero de términos calculados: "
 
         .text #directiva que indica la zona de código (en la que están las instrucciones)
 
@@ -57,34 +57,41 @@ main:
     #Lectura de teclado del valor del error introducido por el usuario
     #std::cin >> error;
 
-    li $v0, 6       #Registro $v0 inicializado a 6. Por convenio esto permite leer un float de teclado
-    syscall
-    move $f0, $v0   #Registro $f0, establecido por convenio para la lectura de float, al que se le carga de $v0
-                    #error --> $f0
+    li $v0, 6       #Registro $v0 inicializado a 6. Por convenio esto permite leer un float de teclado              
+    syscall #Registro $f0, establecido por convenio para la lectura de float, al que se le carga de $v0, error --> $f0
     
+
     #Inicialización de variables:
 
     #     float resultado{1};
-    li.s $f4, 1
+    li.s $f4, 1.0
     #     float resultado2{1};
-    li.s $f5, 1
+    li.s $f5, 1.0
     #     float factorial{1};
-    li.s $f6, 1
+    li   $t1, 1
     #     int i{0}; 
     move $t0, $zero     #Contador del do-while
 
     #do-while{}
 
     do: 
-        sub.s $f8, $f5, $f4
-        ble $f8, $f0 while  #Condición invertida while((resultado2- resultado) >= error)
 
         addu $t0, 1         # i += 1
-        #mtc1 $t0, $f7
-        mult $f6, $f6, $t0  # factorial = factorial * i POSIBLE ERROR REVISAR 
+
+        mul $t1, $t1, $t0  # factorial = factorial * i POSIBLE ERROR REVISAR 
         mov.s $f4, $f5      # resultado = resultado2
-        div.s $f6, $f6, 1   # (1/factorial)
-        add.s $f5, $f5, 
+
+        div $t1, $t1, 1  # (1/factorial)
+
+        mtc1 $t1, $f7
+        cvt.s.w $f9, $f7    # Conversión de t1 a flotante simple 
+
+        add.s $f5, $f5, $f9   #resultado2 += (1/factorial);
+
+        sub.s $f8, $f5, $f4 #resultado2 - resultado
+        c.le.s $f8, $f0 
+        bc1t while  #Condición invertida while((resultado2- resultado) >= error)
+
         b do    # Volver al do      
     while:
 
@@ -99,9 +106,9 @@ main:
     syscall
 
     #<< resultado2 << std::endl;
-
-    li $v0, 2       #Registro $v0 inicializado a 2, porque por convenio esto permite imprimir float por pantalla
     mov.s $f12, $f5
+    li $v0, 2       #Registro $v0 inicializado a 2, porque por convenio esto permite imprimir float por pantalla
+    syscall
 
     #Impresión del número de términos calculados
     #std::cout << "Número de términos calculados: "
