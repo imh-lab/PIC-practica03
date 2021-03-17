@@ -1,8 +1,5 @@
 
 #include <iostream>
-
-
-
 int main (){
     double error{0};
     std::cout << "Práctica 3. PRINCIPIO DE COMPUTADORES" << '\n' << "Introduzca el error máximo permitido: ";
@@ -10,16 +7,12 @@ int main (){
     float resultado{1};
     float resultado2{1};
     float factorial{1};
-    //double control{0};
     int i{0};
     do{
       i += 1;
-      for (int k = i; k <= i; ++k ){
-        factorial = factorial * k;
-      }
+      factorial = factorial * i;
       resultado = resultado2;
       resultado2 += (1/factorial);
-      //control = (resultado2 - resultado);
     }
     while ( (resultado2 - resultado) >= error );
     
